@@ -1,39 +1,46 @@
 name: CI/CD Pipeline
 
 on:
-  workflow_dispatch:    # ← Déclenchement MANUEL uniquement
+  workflow_dispatch:
     inputs:
       version:
-        description: 'Version (ex: v1.0.0)'
+        description: "Version (ex: v1.0.0)"
         required: false
-        default: 'latest'
+        default: "latest"
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
-      - name: Build Backend Image
-        run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/skill-tracker-backend:latest ./skill-tracker-backend
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/skill-tracker-backend:${{ github.sha }} ./skill-tracker-backend
-      
-      - name: Build Frontend Image
-        run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/skill-tracker-frontend:latest ./skill-tracker-frontend
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/skill-tracker-frontend:${{ github.sha }} ./skill-tracker-frontend
-      
+
+      # ---------------- LOGIN DOCKER HUB ----------------
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-      
-      - name: Push to Docker Hub
+
+      # ---------------- BACKEND ----------------
+      - name: Build Backend Image
         run: |
-          docker push ${{ secrets.DOCKER_USERNAME }}/skill-tracker-backend:latest
-          docker push ${{ secrets.DOCKER_USERNAME }}/skill-tracker-backend:${{ github.sha }}
-          docker push ${{ secrets.DOCKER_USERNAME }}/skill-tracker-frontend:latest
-          docker push ${{ secrets.DOCKER_USERNAME }}/skill-tracker-frontend:${{ github.sha }}
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/pfa-backend:latest ./backend
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/pfa-backend:${{ github.sha }} ./backend
+
+      - name: Push Backend Image
+        run: |
+          docker push ${{ secrets.DOCKER_USERNAME }}/pfa-backend:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/pfa-backend:${{ github.sha }}
+
+      # ---------------- FRONTEND ----------------
+      - name: Build Frontend Image
+        run: |
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/pfa-frontend:latest ./frontend
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/pfa-frontend:${{ github.sha }} ./frontend
+
+      - name: Push Frontend Image
+        run: |
+          docker push ${{ secrets.DOCKER_USERNAME }}/pfa-frontend:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/pfa-frontend:${{ github.sha }}

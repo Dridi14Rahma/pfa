@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
 
@@ -25,11 +25,9 @@ services:
       - skill-tracker-network
     deploy:
       replicas: 1
-    depends_on:
-      - mongodb
 
   backend:
-    image: projet-backend:latest
+    image: Dridi14Rahma/pfa-backend:latest
     ports:
       - "8080:8080"
     networks:
@@ -38,7 +36,7 @@ services:
       replicas: 2
 
   frontend:
-    image: projet-frontend:latest
+    image: Dridi14Rahma/pfa-frontend:latest
     ports:
       - "80:80"
     networks:
