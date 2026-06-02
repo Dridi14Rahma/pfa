@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+
+  mongodb:
+    image: mongo:6
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - skill-tracker-network
+    deploy:
+      replicas: 1
+
+  mongo-express:
+    image: mongo-express
+    ports:
+      - "8088:8081"
+    environment:
+      ME_CONFIG_MONGODB_SERVER: mongodb
+      ME_CONFIG_BASICAUTH_USERNAME: admin
+      ME_CONFIG_BASICAUTH_PASSWORD: admin
+    networks:
+      - skill-tracker-network
+    deploy:
+      replicas: 1
+    depends_on:
+      - mongodb
+
+  backend:
+    image: projet-backend:latest
+    ports:
+      - "8080:8080"
+    networks:
+      - skill-tracker-network
+    deploy:
+      replicas: 2
+
+  frontend:
+    image: projet-frontend:latest
+    ports:
+      - "80:80"
+    networks:
+      - skill-tracker-network
+    deploy:
+      replicas: 2
+
+networks:
+  skill-tracker-network:
+    driver: overlay
+
+volumes:
+  mongo_data:
